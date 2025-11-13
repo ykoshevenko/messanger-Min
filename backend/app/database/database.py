@@ -1,5 +1,10 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from pydantic import BaseModel
+
+class User(BaseModel):
+    username: str
+    password: str
 
 engine = create_async_engine('sqlite:+aiosqlite:///data.db')
 
@@ -22,3 +27,12 @@ async def setup_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+async def add_user(data: User, session):
+    new_user = UserModel(
+        username=data.username,
+        password=data.password
+    )
+
+    session.add(new_session)
+    await session.commit()
