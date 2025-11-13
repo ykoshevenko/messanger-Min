@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  // Для Tauri важно отключить строгий режим в production
   distDir: 'out',
 };
 
