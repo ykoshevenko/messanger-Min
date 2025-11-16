@@ -1,6 +1,7 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from pydantic import BaseModel
+from sqlalchemy import select
 
 class User(BaseModel):
     username: str
@@ -34,5 +35,10 @@ async def add_user(data: User, session):
         password=data.password
     )
 
-    session.add(new_session)
+    session.add(new_user)
     await session.commit()
+
+async def get_user_by_username(username: str, session: AsyncSession):
+    query = select(UserModel).where(UserModel.username == username)
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
