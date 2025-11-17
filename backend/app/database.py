@@ -7,7 +7,7 @@ class User(BaseModel):
     username: str
     password: str
 
-engine = create_async_engine('sqlite:+aiosqlite:///data.db')
+engine = create_async_engine('postgresql+asyncpg://user:password@localhost/dbname')
 
 new_session = async_sessionmaker(engine, expire_on_commit=False)
 
@@ -37,6 +37,7 @@ async def add_user(data: User, session):
 
     session.add(new_user)
     await session.commit()
+    return {'status': 200}
 
 async def get_user_by_username(username: str, session: AsyncSession):
     query = select(UserModel).where(UserModel.username == username)

@@ -1,6 +1,6 @@
 from authx import AuthX, AuthXConfig
 from pydantic import BaseModel
-from database import get_user_by_username, add_user, get_session
+from .database import get_user_by_username, add_user, get_session
 
 class UserLoginSchame(BaseModel):
     username: str
