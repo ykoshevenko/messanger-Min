@@ -1,18 +1,57 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from pydantic import BaseModel
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
+# from sqlalchemy import select
+
+# # Синхронный движок вместо асинхронного
+# engine = create_engine('sqlite:///./data.db')
+
+# # Синхронная сессия
+# new_session = sessionmaker(engine, expire_on_commit=False)
+
+# def get_session():
+#     with new_session() as session:
+#         yield session
+
+# class Base(DeclarativeBase):
+#     pass
+
+# class UserModel(Base):
+#     __tablename__ = 'Users'
+#     id: Mapped[int] = mapped_column(primary_key=True)
+#     username: Mapped[str]
+#     password: Mapped[str]
+
+# def setup_database():
+#     # Создаем все таблицы
+#     Base.metadata.create_all(engine)
+#     print("Tables created successfully")
+
+# def add_user(data, session):
+#     new_user = UserModel(
+#         username=data.username,
+#         password=data.password
+#     )
+#     session.add(new_user)
+#     session.commit()
+#     return {'status': 200}
+
+# def get_user_by_username(username: str, session):
+#     query = select(UserModel).where(UserModel.username == username)
+#     result = session.execute(query)
+#     return result.scalar_one_or_none()
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import select
 
-class User(BaseModel):
-    username: str
-    password: str
+# Синхронный движок
+engine = create_engine('sqlite:///./data.db')
 
-engine = create_async_engine('postgresql+asyncpg://user:password@localhost/dbname')
+# Синхронная сессия
+new_session = sessionmaker(engine, expire_on_commit=False)
 
-new_session = async_sessionmaker(engine, expire_on_commit=False)
-
-async def get_session():
-    async with new_session() as session:
+def get_session():
+    with new_session() as session:
         yield session
 
 class Base(DeclarativeBase):
@@ -24,22 +63,20 @@ class UserModel(Base):
     username: Mapped[str]
     password: Mapped[str]
 
-async def setup_database():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
+def setup_database():
+    Base.metadata.create_all(engine)
+    print("Tables created successfully")
 
-async def add_user(data: User, session):
+def add_user(data, session):
     new_user = UserModel(
         username=data.username,
         password=data.password
     )
-
     session.add(new_user)
-    await session.commit()
+    session.commit()
     return {'status': 200}
 
-async def get_user_by_username(username: str, session: AsyncSession):
+def get_user_by_username(username: str, session):
     query = select(UserModel).where(UserModel.username == username)
-    result = await session.execute(query)
+    result = session.execute(query)
     return result.scalar_one_or_none()
