@@ -1,64 +1,40 @@
-# from fastapi import FastAPI, HTTPException, Depends
-# from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-# from pydantic import BaseModel
-# from app.auth import createAccaunt, login
-# from app.database import get_session, setup_database
-
-# app = FastAPI()
-
-# class User(BaseModel):
-#     username: str
-#     password: str
-
-# @app.on_event("startup")
-# def on_startup():
-#     setup_database()
-#     print("Database initialized")
-
-# @app.post('/api/create_user')
-# async def create_user(data: User, session: AsyncSession = Depends(get_session)):
-#     try:
-#         await createAccaunt(data, session)
-#         raise HTTPException(status_code=201, detail='register complieted')
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-    
-# @app.post('/api/auth')
-# async def authinticated(data: User, session: AsyncSession = Depends(get_session)):
-#     try:
-#         return await login(data, session)
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.auth import createAccount, login
 from app.database import get_session, setup_database
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешить все origins для разработки
+    allow_credentials=True,
+    allow_methods=["*"],  # Разрешить все методы
+    allow_headers=["*"],  # Разрешить все заголовки
+)
+
 class User(BaseModel):
     username: str
     password: str
 
-# Инициализация базы данных при запуске приложения
 @app.on_event("startup")
 def on_startup():
     setup_database()
     print("Database initialized")
 
 @app.post('/api/create_user')
-def create_user(data: User, session = Depends(get_session)):  # Убрано async
+def create_user(data: User, session = Depends(get_session)): 
     try:
-        createAccount(data, session)  # Убрано await
+        createAccount(data, session)  
         return {"message": "User created successfully", "status": 201}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
 @app.post('/api/auth')
-def authenticated(data: User, session = Depends(get_session)):  # Убрано async
+def authenticated(data: User, session = Depends(get_session)):  
     try:
-        return login(data, session)  # Убрано await
+        return login(data, session)  
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     

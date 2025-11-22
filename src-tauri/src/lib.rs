@@ -58,7 +58,7 @@ fn start_fastapi_server() {
             .arg("--host")
             .arg("127.0.0.1")
             .arg("--port")
-            .arg("8000")
+            .arg("8001")
             .current_dir("../backend")
             .spawn() {
                 Ok(_) => println!("FastAPI server started successfully"),
