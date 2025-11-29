@@ -1,6 +1,7 @@
 'use client'
 import { useState } from "react"
 import Auth from "../script/auth"
+import { useRouter } from "next/navigation"
 
 export default function AuthComponents() {
     const [reg, setReg] = useState<boolean>(false)
@@ -8,6 +9,7 @@ export default function AuthComponents() {
     const [password, setPassword] = useState<string>('')
     const [err, setErr] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)
+    const router = useRouter()
 
     function toggleAuthMode() {
         setReg(prev => !prev)
@@ -41,6 +43,7 @@ export default function AuthComponents() {
                 if (result.access_token) {
                     localStorage.setItem('token', result.access_token)
                 }
+                router.push('/')
             }
         } catch (error: any) {
             setErr(`❌ ${error.message}`)

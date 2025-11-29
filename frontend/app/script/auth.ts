@@ -15,6 +15,11 @@ export default class Auth {
                 username: this.username,
                 password: this.password
             })
+
+            if(resp.data.access_token) {
+                document.cookie = `token=${resp.data.access_token}; path=/; max-age=86400`
+            }
+
             return resp.data
         } catch(err: any) {
             throw new Error(err.response?.data?.detail || 'Auth failed')
