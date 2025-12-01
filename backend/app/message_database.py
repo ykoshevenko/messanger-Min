@@ -53,10 +53,21 @@ class ConnectionMenager:
                 except Exception as e:
                     print(f'Error sending message to user {user_id}: {e}')
 
-    async def broadcast(self, message:str):
-        for user_connections in self.active_connections.values():
-            for connection in user_connections:
+    async def broadcast(self, message: str, recipient_id: int, sender_id: int):
+        # Отправляем сообщение конкретному получателю
+        if recipient_id in self.active_connections:
+            for connection in self.active_connections[recipient_id]:
                 try:
                     await connection.send_text(message)
                 except Exception as e:
-                    print(f'Error broadcasting message: {e}')
+                    print(f'Error broadcasting message to {recipient_id}: {e}')
+        
+        # Также отправляем отправителю (чтобы он видел свое сообщение)
+        if sender_id in self.active_connections:
+            for connection in self.active_connections[sender_id]:
+                try:
+                    await connection.send_text(message)
+                except Exception as e:
+                    print(f'Error sending message to sender {sender_id}: {e}')
+
+                    
