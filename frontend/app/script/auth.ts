@@ -17,7 +17,42 @@ export default class Auth {
             })
 
             if(resp.data.access_token) {
-                document.cookie = `token=${resp.data.access_token}; path=/; max-age=86400`
+                const token = resp.data.access_token
+                
+                console.log('🔐 Получен токен:', token.substring(0, 20) + '...')
+                
+                // 1. Устанавливаем cookie для Next.js middleware
+                document.cookie = `auth-token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`
+                
+                // 2. Дополнительно устанавливаем через серверный endpoint
+                try {
+                    await fetch('/api/set-auth-cookie', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ token }),
+                    })
+                    console.log('✅ Cookie установлена через API')
+                } catch (e) {
+                    console.warn('⚠️ Не удалось установить cookie через API:', e)
+                }
+                
+                // 3. Сохраняем в localStorage для клиентского использования
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('token', token)
+                    console.log('✅ Токен сохранен в localStorage')
+                }
+                
+                // 4. Проверяем что cookie установилась
+                setTimeout(() => {
+                    const cookieToken = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('auth-token='))
+                        ?.split('=')[1]
+                    
+                    console.log('🔍 Проверка cookie после установки:', cookieToken ? 'успешно' : 'не найдена')
+                }, 100)
             }
 
             return resp.data
